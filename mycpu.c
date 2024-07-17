@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
     char output[4096];
 
     if (glob("/sys/devices/system/cpu/cpu?/cpufreq", 0, NULL, &globbuf) == 0) {
-        int valid_argument = 0; // Flag to check if argument is valid
+        int valid_argument = 0;
         for (size_t i = 0; i < globbuf.gl_pathc; ++i) {
             char scaling_available_frequencies[512];
             snprintf(scaling_available_frequencies, sizeof(scaling_available_frequencies), "%s/scaling_available_frequencies", globbuf.gl_pathv[i]);
