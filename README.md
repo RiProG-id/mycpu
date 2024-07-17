@@ -13,7 +13,9 @@
 
 ## Example Usage
 ```bash
-clang -O3 ./mycpu.c -o mycpu
-chmod +x ./mycpu
+git clone https://github.com/RiProG-id/mycpu.git
+cd mycpu
+clang -O3 mycpu.c -o mycpu
+chmod +x mycpu
 ./mycpu
 ```
