@@ -7,8 +7,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 void print_help() {
-  printf("mycpu v2.0 by RiProG-id\n");
-  printf("Usage: mycpu -- <check|default|forcemin|forcemax>\n");
+  printf("mycpu v2.1 by RiProG-id\n");
+  printf("Usage: mycpu -- <check|default|forcemin|forcemax|help>\n");
   printf("Options:\n");
   printf("  --check       Print min and max frequencies for each CPU\n");
   printf("  --default     Set CPU frequencies to default min and max\n");
@@ -22,28 +22,44 @@ void read_unlock(const char *filepath, char *output, size_t size) {
   struct stat st;
   if (stat(filepath, &st) == 0) {
     if (access(filepath, R_OK) != 0) {
-      chmod(filepath, st.st_mode | S_IRUSR);
+      if (chmod(filepath, st.st_mode | S_IRUSR) != 0) {
+        perror("chmod");
+        return;
+      }
     }
     FILE *file = fopen(filepath, "r");
     if (file != NULL) {
       fread(output, 1, size, file);
       fclose(file);
+    } else {
+      perror("fopen");
     }
+  } else {
+    perror("stat");
   }
 }
-void unlock_write_lock(const char *filepath, const char *value) {
+void unlock_write_print_lock(const char *filepath, const char *value) {
   struct stat st;
   if (stat(filepath, &st) == 0) {
     if (access(filepath, W_OK) != 0) {
-      chmod(filepath, st.st_mode | S_IWUSR);
+      if (chmod(filepath, st.st_mode | S_IWUSR) != 0) {
+        perror("chmod");
+        return;
+      }
     }
     FILE *file = fopen(filepath, "w");
     if (file != NULL) {
       fprintf(file, "%s", value);
       fclose(file);
-      chmod(filepath, st.st_mode & ~S_IWUSR);
-      printf("Successfully wrote '%s' to '%s'\n", value, filepath);
+      if (chmod(filepath, st.st_mode & ~S_IWUSR) != 0) {
+        perror("chmod");
+      }
+      printf("Wrote '%s' to '%s'\n", value, filepath);
+    } else {
+      perror("fopen");
     }
+  } else {
+    perror("stat");
   }
 }
 int main(int argc, char *argv[]) {
@@ -102,46 +118,43 @@ int main(int argc, char *argv[]) {
       snprintf(max_value_ppm, sizeof(max_value_ppm), "%c %d", cluster,
                max_value);
       if (strcmp(argv[1], "--check") == 0) {
-        printf("The minimum frequency in cluster %c is %d\n", cluster,
-               min_value);
-        printf("The maximum frequency in cluster %c is %d\n", cluster,
-               max_value);
+        printf("Cluster %c: Min freq = %d, Max freq = %d\n", cluster, min_value, max_value);
       } else if (strcmp(argv[1], "--default") == 0) {
-        printf("Configure CPU frequency\n");
-        unlock_write_lock(min_freq_path, min_value_path);
-        unlock_write_lock(max_freq_path, max_value_path);
-        unlock_write_lock(min_freq_ppm, min_value_ppm);
-        unlock_write_lock(max_freq_ppm, max_value_ppm);
-        printf("Reconfigure CPU frequency\n");
-        unlock_write_lock(min_freq_path, min_value_path);
-        unlock_write_lock(max_freq_path, max_value_path);
-        unlock_write_lock(min_freq_ppm, min_value_ppm);
-        unlock_write_lock(max_freq_ppm, max_value_ppm);
-        printf("CPU frequency configuration is complete\n");
+        printf("Configuring CPU frequency for cluster %c...\n", cluster);
+        unlock_write_print_lock(min_freq_path, min_value_path);
+        unlock_write_print_lock(max_freq_path, max_value_path);
+        unlock_write_print_lock(min_freq_ppm, min_value_ppm);
+        unlock_write_print_lock(max_freq_ppm, max_value_ppm);
+        printf("Reconfiguring CPU frequency for cluster %c...\n", cluster);
+        unlock_write_print_lock(min_freq_path, min_value_path);
+        unlock_write_print_lock(max_freq_path, max_value_path);
+        unlock_write_print_lock(min_freq_ppm, min_value_ppm);
+        unlock_write_print_lock(max_freq_ppm, max_value_ppm);
+        printf("CPU frequency configuration for cluster %c is complete\n", cluster);
       } else if (strcmp(argv[1], "--forcemin") == 0) {
-        printf("Configure CPU frequency\n");
-        unlock_write_lock(min_freq_path, min_value_path);
-        unlock_write_lock(max_freq_path, min_value_path);
-        unlock_write_lock(min_freq_ppm, min_value_ppm);
-        unlock_write_lock(max_freq_ppm, min_value_ppm);
-        printf("Reconfigure CPU frequency\n");
-        unlock_write_lock(min_freq_path, min_value_path);
-        unlock_write_lock(max_freq_path, min_value_path);
-        unlock_write_lock(min_freq_ppm, min_value_ppm);
-        unlock_write_lock(max_freq_ppm, min_value_ppm);
+        printf("Configuring CPU frequency for cluster %c...\n", cluster);
+        unlock_write_print_lock(min_freq_path, min_value_path);
+        unlock_write_print_lock(max_freq_path, min_value_path);
+        unlock_write_print_lock(min_freq_ppm, min_value_ppm);
+        unlock_write_print_lock(max_freq_ppm, min_value_ppm);
+        printf("Reconfiguring CPU frequency for cluster %c...\n", cluster);
+        unlock_write_print_lock(min_freq_path, min_value_path);
+        unlock_write_print_lock(max_freq_path, min_value_path);
+        unlock_write_print_lock(min_freq_ppm, min_value_ppm);
+        unlock_write_print_lock(max_freq_ppm, min_value_ppm);
         printf("CPU frequency configuration is complete\n");
       } else if (strcmp(argv[1], "--forcemax") == 0) {
-        printf("Configure CPU frequency\n");
-        unlock_write_lock(min_freq_path, max_value_path);
-        unlock_write_lock(max_freq_path, max_value_path);
-        unlock_write_lock(min_freq_ppm, max_value_ppm);
-        unlock_write_lock(max_freq_ppm, max_value_ppm);
-        printf("Reconfigure CPU frequency\n");
-        unlock_write_lock(min_freq_path, max_value_path);
-        unlock_write_lock(max_freq_path, max_value_path);
-        unlock_write_lock(min_freq_ppm, max_value_ppm);
-        unlock_write_lock(max_freq_ppm, max_value_ppm);
-        printf("CPU frequency configuration is complete\n");
+        printf("Configuring CPU frequency for cluster %c...\n", cluster);
+        unlock_write_print_lock(min_freq_path, max_value_path);
+        unlock_write_print_lock(max_freq_path, max_value_path);
+        unlock_write_print_lock(min_freq_ppm, max_value_ppm);
+        unlock_write_print_lock(max_freq_ppm, max_value_ppm);
+        printf("Reconfiguring CPU frequency for cluster %c...\n", cluster);
+        unlock_write_print_lock(min_freq_path, max_value_path);
+        unlock_write_print_lock(max_freq_path, max_value_path);
+        unlock_write_print_lock(min_freq_ppm, max_value_ppm);
+        unlock_write_print_lock(max_freq_ppm, max_value_ppm);
+        printf("CPU frequency configuration for cluster %c is complete\n", cluster);
       } else {
         fprintf(stderr, "Invalid argument: %s\n", argv[1]);
         print_help();
