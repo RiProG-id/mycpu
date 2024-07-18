@@ -1,4 +1,4 @@
-# mycpu v2.0 by RiProG-id
+# mycpu v2.1 by RiProG-id
 
 ## Description
 `mycpu` is a command-line utility written in C for managing CPU frequencies on Linux systems. It provides options to check and adjust CPU frequency settings easily.
