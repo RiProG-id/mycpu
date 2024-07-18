@@ -118,7 +118,8 @@ int main(int argc, char *argv[]) {
       snprintf(max_value_ppm, sizeof(max_value_ppm), "%c %d", cluster,
                max_value);
       if (strcmp(argv[1], "--check") == 0) {
-        printf("Cluster %c: Min freq = %d, Max freq = %d\n", cluster, min_value, max_value);
+        printf("Cluster %c: Min freq = %d, Max freq = %d\n", cluster, min_value,
+               max_value);
       } else if (strcmp(argv[1], "--default") == 0) {
         printf("Configuring CPU frequency for cluster %c...\n", cluster);
         unlock_write_print_lock(min_freq_path, min_value_path);
@@ -130,7 +131,8 @@ int main(int argc, char *argv[]) {
         unlock_write_print_lock(max_freq_path, max_value_path);
         unlock_write_print_lock(min_freq_ppm, min_value_ppm);
         unlock_write_print_lock(max_freq_ppm, max_value_ppm);
-        printf("CPU frequency configuration for cluster %c is complete\n", cluster);
+        printf("CPU frequency configuration for cluster %c is complete\n",
+               cluster);
       } else if (strcmp(argv[1], "--forcemin") == 0) {
         printf("Configuring CPU frequency for cluster %c...\n", cluster);
         unlock_write_print_lock(min_freq_path, min_value_path);
@@ -154,7 +156,8 @@ int main(int argc, char *argv[]) {
         unlock_write_print_lock(max_freq_path, max_value_path);
         unlock_write_print_lock(min_freq_ppm, max_value_ppm);
         unlock_write_print_lock(max_freq_ppm, max_value_ppm);
-        printf("CPU frequency configuration for cluster %c is complete\n", cluster);
+        printf("CPU frequency configuration for cluster %c is complete\n",
+               cluster);
       } else {
         fprintf(stderr, "Invalid argument: %s\n", argv[1]);
         print_help();
